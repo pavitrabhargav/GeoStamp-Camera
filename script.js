@@ -1,373 +1,235 @@
-const video = document.getElementById("camera");
-
-const placeName = document.getElementById("placeName");
-const address = document.getElementById("address");
-const latText = document.getElementById("lat");
-const lngText = document.getElementById("lng");
-const dateTime = document.getElementById("dateTime");
-
+const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-const captureBtn = document.getElementById("captureBtn");
-const result = document.getElementById("result");
-
-
-let map;
-let marker;
-
-let latitude = 0;
-let longitude = 0;
-let place = "Loading...";
-let fullAddress = "";
-
-
-
-// ================= CAMERA =================
-
-async function startCamera(){
-
-try{
-
-const stream = await navigator.mediaDevices.getUserMedia({
-
-video:{
-facingMode:"environment"
-},
-
-audio:false
-
-});
-
-
-video.srcObject = stream;
-
-
-}
-
-catch(error){
-
-alert("Camera Permission Denied");
-
-console.log(error);
-
-}
-
-}
-
-
-
-// ================= DATE TIME =================
-
-function updateDateTime(){
-
-const now = new Date();
-
-dateTime.innerHTML =
-now.toLocaleDateString()+
-"<br>"+
-now.toLocaleTimeString();
-
-}
-
-
-setInterval(updateDateTime,1000);
-
-updateDateTime();
-
-
-
-
-// ================= GPS =================
-
-navigator.geolocation.getCurrentPosition(
-
-function(position){
-
-
-latitude = position.coords.latitude;
-
-longitude = position.coords.longitude;
-
-
-
-latText.innerHTML =
-"Latitude : "+latitude.toFixed(6);
-
-
-
-lngText.innerHTML =
-"Longitude : "+longitude.toFixed(6);
-
-
-
-loadMap(latitude,longitude);
-
-
-getAddress(latitude,longitude);
-
-
-
-},
-
-
-function(){
-
-alert("GPS Permission Denied");
-
-}
-
-);
-
-
-
-
-
-// ================= MAP =================
-
-function loadMap(lat,lng){
-
-
-map = L.map('map').setView([lat,lng],17);
-
-
-
-L.tileLayer(
-
-'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-{
-maxZoom:19
-}
-
-).addTo(map);
-
-
-
-marker =
-L.marker([lat,lng]).addTo(map);
-
-
-}
-
-
-
-
-// ================= ADDRESS =================
-
-async function getAddress(lat,lng){
-
-
-try{
-
-
-const url =
-`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-
-
-
-const res = await fetch(url);
-
-
-const data = await res.json();
-
-
-
-place =
-
-data.address.village ||
-
-data.address.town ||
-
-data.address.city ||
-
-"Unknown";
-
-
-
-fullAddress = data.display_name;
-
-
-
-placeName.innerHTML = place;
-
-
-address.innerHTML = fullAddress;
-
-
-
-}
-
-catch(e){
-
-console.log(e);
-
-}
-
-
-}
-
-
-
-
-
-// ================= CAPTURE PHOTO =================
-
-
-captureBtn.onclick = function(){
-
-
-if(video.videoWidth === 0){
-
-alert("Camera Loading...");
-
-return;
-
-}
-
-
-
-canvas.width = video.videoWidth;
-
-canvas.height = video.videoHeight;
-
-
-
 const ctx = canvas.getContext("2d");
 
+const captureBtn = document.getElementById("captureBtn");
+const switchBtn = document.getElementById("switchBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
+let currentStream;
+let facingMode = "environment";
 
-// Camera Photo
+let latitude = "";
+let longitude = "";
+let address = "";
 
-ctx.drawImage(
 
-video,
+// CAMERA START
+async function startCamera(){
 
-0,
+    if(currentStream){
+        currentStream.getTracks().forEach(track => track.stop());
+    }
 
-0,
+    try{
 
-canvas.width,
+        const stream = await navigator.mediaDevices.getUserMedia({
 
-canvas.height
+            video:{
+                facingMode:facingMode,
+                width:{ideal:1920},
+                height:{ideal:1080}
+            },
 
-);
+            audio:false
 
+        });
 
+        currentStream = stream;
+        video.srcObject = stream;
 
+    }
+    catch(error){
 
-// ===== STAMP ON PHOTO =====
+        alert("Camera permission allow करें");
 
+        console.log(error);
+    }
 
-ctx.fillStyle="rgba(0,0,0,0.55)";
+}
 
+startCamera();
 
-ctx.fillRect(
 
-20,
+// SWITCH CAMERA
 
-canvas.height-190,
+switchBtn.onclick = function(){
 
-canvas.width-40,
+    if(facingMode==="environment"){
+        facingMode="user";
+    }
+    else{
+        facingMode="environment";
+    }
 
-160
+    startCamera();
 
-);
+};
 
 
+// GET LOCATION
 
-ctx.fillStyle="white";
+function getLocation(){
 
+    if(navigator.geolocation){
 
-ctx.font="bold 26px Arial";
+        navigator.geolocation.getCurrentPosition(
 
+            async function(position){
 
-ctx.fillText(
+                latitude = position.coords.latitude.toFixed(6);
+                longitude = position.coords.longitude.toFixed(6);
 
-"📍 "+place,
 
-40,
+                try{
 
-canvas.height-145
+                    let response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                    );
 
-);
 
+                    let data = await response.json();
 
+                    address = data.display_name;
 
-ctx.font="20px Arial";
+                }
+                catch(e){
 
+                    address="Location not found";
 
-ctx.fillText(
+                }
 
-"🌐 "+latitude.toFixed(6)+", "+longitude.toFixed(6),
 
-40,
+            },
 
-canvas.height-110
 
-);
+            function(){
 
+                address="GPS Permission Denied";
 
+            },
 
-ctx.fillText(
 
-"🏠 "+fullAddress.substring(0,45),
+            {
+                enableHighAccuracy:true
+            }
 
-40,
+        );
 
-canvas.height-75
 
-);
+    }
 
+}
 
 
-ctx.fillText(
+getLocation();
 
-"🕒 "+new Date().toLocaleString(),
 
-40,
+// CAPTURE PHOTO
 
-canvas.height-40
 
-);
+captureBtn.onclick=function(){
 
 
+    if(video.videoWidth===0){
 
+        alert("Camera loading...");
+        return;
 
-// FINAL IMAGE
+    }
 
 
-let finalPhoto = canvas.toDataURL("image/png");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
 
+    // PHOTO DRAW
 
-result.src = finalPhoto;
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
 
-result.style.display="block";
 
+    // BLACK TRANSPARENT BOX
 
+    ctx.fillStyle="rgba(0,0,0,0.55)";
 
+    ctx.fillRect(
+        20,
+        canvas.height-230,
+        canvas.width-40,
+        200
+    );
 
-// DOWNLOAD
 
 
-let a = document.createElement("a");
+    // TEXT STYLE
 
+    ctx.fillStyle="white";
 
-a.href = finalPhoto;
+    ctx.font="bold 35px Arial";
 
 
-a.download = "GeoStamp_Photo.png";
 
+    let now = new Date();
 
-a.click();
+
+    let date =
+    now.toLocaleDateString("en-IN");
+
+
+    let time =
+    now.toLocaleTimeString("en-IN");
+
+
+
+    ctx.fillText(
+        "📍 "+address,
+        40,
+        canvas.height-170
+    );
+
+
+    ctx.fillText(
+        "Lat: "+latitude+"  Lon: "+longitude,
+        40,
+        canvas.height-120
+    );
+
+
+    ctx.fillText(
+        "Date: "+date+"  Time: "+time,
+        40,
+        canvas.height-70
+    );
+
+
+
+    downloadBtn.style.display="block";
 
 
 };
 
 
+// DOWNLOAD PHOTO
 
 
+downloadBtn.onclick=function(){
 
-// START CAMERA
 
-startCamera();
+    let link=document.createElement("a");
+
+    link.download="GeoStamp_Photo_"+Date.now()+".png";
+
+    link.href=canvas.toDataURL("image/png");
+
+
+    link.click();
+
+
+};
