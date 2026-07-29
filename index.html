@@ -1,42 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
 <title>GeoStamp Camera</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
+
 <body>
 
-<div class="container">
+<div id="cameraContainer">
 
-<h1>📷 GeoStamp Camera</h1>
+<video id="camera"
+autoplay
+playsinline></video>
 
-<video id="camera" autoplay playsinline></video>
+<div id="gpsPanel">
 
-<canvas id="canvas" style="display:none;"></canvas>
+<div id="mapBox">
 
-<div class="info">
+<div id="map">
 
-<p id="date">Date : --</p>
-
-<p id="time">Time : --</p>
-
-<p id="location">Location : Loading...</p>
-
-<p id="latlng">Lat : -- | Long : --</p>
+🗺️ Map Loading...
 
 </div>
 
-<button id="capture">📸 Capture Photo</button>
+</div>
 
-<img id="photo" />
+<div id="details">
+
+<h2 id="placeName">
+Loading...
+</h2>
+
+<p id="country">
+India 🇮🇳
+</p>
+
+<p id="address">
+Searching Address...
+</p>
+
+<p id="lat">
+Latitude :
+--
+</p>
+
+<p id="lng">
+Longitude :
+--
+</p>
+
+<p id="dateTime">
+Loading...
+</p>
 
 </div>
+
+</div>
+
+<button id="captureBtn">
+
+📸
+
+</button>
+
+</div>
+
+<canvas id="canvas"
+hidden></canvas>
+
+<img id="result">
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
