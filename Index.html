@@ -1,214 +1,332 @@
- import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  Platform,
-} from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+<!DOCTYPE html>
+<html lang="en">
 
-export default function CameraScreen() {
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
-  const [isCapturing, setIsCapturing] = useState(false);
-  const cameraRef = useRef<any>(null);
+<head>
 
-  useEffect(() => {
-    requestPermissions();
-  }, []);
+<meta charset="UTF-8">
 
-  const requestPermissions = async () => {
-    if (!cameraPermission?.granted) {
-      await requestCameraPermission();
-    }
-    if (!mediaPermission?.granted) {
-      await requestMediaPermission();
-    }
-  };
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
-  const toggleCameraFacing = () => {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  };
+<meta
+name="theme-color"
+content="#000000">
 
-  const takePicture = async () => {
-    if (!cameraRef.current || isCapturing) return;
+<meta
+name="apple-mobile-web-app-capable"
+content="yes">
 
-    try {
-      setIsCapturing(true);
+<meta
+name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
 
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 1,
-        base64: true,
-      });
+<meta
+name="mobile-web-app-capable"
+content="yes">
 
-      // Navigate to preview screen with photo
-      router.push({
-        pathname: '/preview',
-        params: {
-          photoUri: photo.uri,
-          photoBase64: photo.base64,
-        },
-      });
-    } catch (error) {
-      console.error('Error taking picture:', error);
-      Alert.alert('Error', 'Failed to take picture');
-    } finally {
-      setIsCapturing(false);
-    }
-  };
+<title>GeoStamp Camera</title>
 
-  if (!cameraPermission || !mediaPermission) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#fff" />
-      </View>
-    );
-  }
+<link rel="manifest"
+href="manifest.json">
 
-  if (!cameraPermission.granted || !mediaPermission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.permissionText}>
-          Camera और Gallery की permission चाहिए
-        </Text>
-        <TouchableOpacity
-          style={styles.permissionButton}
-          onPress={requestPermissions}
-        >
-          <Text style={styles.permissionButtonText}>Permission दें</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+<link
+rel="icon"
+href="assets/icon-192.png">
 
-  return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
-      
-      <CameraView
-        ref={cameraRef}
-        style={styles.camera}
-        facing={facing}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>📍 Geo Tag Camera</Text>
-        </View>
+<link
+rel="apple-touch-icon"
+href="assets/icon-192.png">
 
-        {/* Controls */}
-        <View style={styles.controls}>
-          {/* Flip Camera Button */}
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={toggleCameraFacing}
-            disabled={isCapturing}
-          >
-            <Ionicons name="camera-reverse" size={32} color="#fff" />
-          </TouchableOpacity>
+<link
+rel="stylesheet"
+href="style.css">
 
-          {/* Capture Button */}
-          <TouchableOpacity
-            style={styles.captureButton}
-            onPress={takePicture}
-            disabled={isCapturing}
-          >
-            {isCapturing ? (
-              <ActivityIndicator size="large" color="#fff" />
-            ) : (
-              <View style={styles.captureButtonInner} />
-            )}
-          </TouchableOpacity>
+</head>
 
-          {/* Placeholder for symmetry */}
-          <View style={styles.controlButton} />
-        </View>
-      </CameraView>
-    </View>
-  );
-}
+<body>
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  camera: {
-    flex: 1,
-    width: '100%',
-  },
-  header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  controls: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  controlButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  captureButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 4,
-    borderColor: '#fff',
-  },
-  captureButtonInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#fff',
-  },
-  permissionText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 40,
-  },
-  permissionButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  permissionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+<div id="loadingScreen">
+
+<div class="loader"></div>
+
+<h2>GeoStamp Camera</h2>
+
+<p>
+
+Loading Camera...
+
+</p>
+
+</div>
+
+<div id="app">
+
+<video
+
+id="camera"
+
+autoplay
+
+playsinline
+
+muted
+
+></video>
+
+<canvas
+
+id="photoCanvas"
+
+style="display:none">
+
+</canvas>
+
+<div id="cameraOverlay">
+
+<div id="topBar">
+
+<div class="gpsStatus">
+
+<span
+id="gpsDot">
+
+</span>
+
+<span
+id="gpsText">
+
+Waiting GPS...
+
+</span>
+
+</div>
+
+<div
+id="accuracyBox">
+
+Accuracy :
+
+<span
+id="accuracy">
+
+--
+
+</span>
+
+m
+
+</div>
+
+</div>
+
+<div id="bottomOverlay">
+
+<div id="overlayLeft">
+
+<img
+
+src="assets/map.jpg"
+
+id="mapImage"
+
+alt="Map">
+
+</div>
+
+<div id="overlayRight">
+
+<div class="locationTitle">
+
+<span id="city">
+
+Loading...
+
+</span>
+
+</div>
+
+<div class="addressText">
+
+<span id="address">
+
+Searching Address...
+
+</span>
+
+</div>
+
+<div class="infoRow">
+
+<div>
+
+Latitude
+
+</div>
+
+<div id="latitude">
+
+--
+
+</div>
+
+</div>
+
+<div class="infoRow">
+
+<div>
+
+Longitude
+
+</div>
+
+<div id="longitude">
+
+--
+
+</div>
+
+</div>
+<div class="infoRow">
+                        <div>Date</div>
+                        <div id="currentDate">--/--/----</div>
+                    </div>
+
+                    <div class="infoRow">
+                        <div>Time</div>
+                        <div id="currentTime">--:--:--</div>
+                    </div>
+
+                    <div class="infoRow">
+                        <div>Altitude</div>
+                        <div id="altitude">-- m</div>
+                    </div>
+
+                    <div class="infoRow">
+                        <div>Speed</div>
+                        <div id="speed">0 km/h</div>
+                    </div>
+
+                    <div class="infoRow">
+                        <div>Direction</div>
+                        <div id="direction">N</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="controls">
+
+            <button
+                id="switchCamera"
+                class="controlBtn"
+                aria-label="Switch Camera">
+
+                <span>🔄</span>
+
+            </button>
+
+            <button
+                id="captureButton"
+                aria-label="Capture Photo">
+
+                <img
+                    src="assets/camera.png"
+                    id="captureIcon"
+                    alt="Capture">
+
+            </button>
+
+            <button
+                id="galleryButton"
+                class="controlBtn"
+                aria-label="Gallery">
+
+                <span>🖼️</span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="permissionDialog"
+         class="hidden">
+
+        <div class="permissionCard">
+
+            <h2>
+
+                Camera Permission
+
+            </h2>
+
+            <p>
+
+                Camera, GPS and Storage permission
+                is required to use GeoStamp Camera.
+
+            </p>
+
+            <button
+                id="grantPermission">
+
+                Allow Permission
+
+            </button>
+
+        </div>
+
+    </div>
+<div id="toast" class="hidden">
+
+        <span id="toastMessage">
+
+            Ready
+
+        </span>
+
+    </div>
+
+    <script src="gps.js"></script>
+
+    <script src="camera.js"></script>
+
+    <script src="overlay.js"></script>
+
+    <script src="app.js"></script>
+
+    <script>
+
+        if ("serviceWorker" in navigator) {
+
+            window.addEventListener("load", () => {
+
+                navigator.serviceWorker
+                    .register("sw.js")
+                    .then(() => {
+
+                        console.log("Service Worker Registered");
+
+                    })
+                    .catch(err => {
+
+                        console.error(err);
+
+                    });
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+
