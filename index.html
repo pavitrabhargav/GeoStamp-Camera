@@ -5,27 +5,38 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>GeoStamp Camera</title>
 
 <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 </head>
 
+
 <body>
+
 
 <div id="cameraContainer">
 
+
+<!-- Camera -->
+
 <video id="camera"
 autoplay
-playsinline></video>
+playsinline>
+</video>
+
+
+
+<!-- GPS Information -->
 
 <div id="gpsPanel">
+
 
 <div id="mapBox">
 
@@ -37,52 +48,78 @@ playsinline></video>
 
 </div>
 
+
+
 <div id="details">
+
 
 <h2 id="placeName">
 Loading...
 </h2>
 
+
 <p id="country">
 India 🇮🇳
 </p>
+
 
 <p id="address">
 Searching Address...
 </p>
 
+
 <p id="lat">
-Latitude :
---
+Latitude : --
 </p>
 
+
 <p id="lng">
-Longitude :
---
+Longitude : --
 </p>
+
 
 <p id="dateTime">
 Loading...
 </p>
 
-</div>
 
 </div>
+
+
+</div>
+
+
+
+
+<!-- Capture Button -->
 
 <button id="captureBtn">
 
-📸
+📸 Capture
 
 </button>
 
+
+
 </div>
 
-<canvas id="canvas"
-hidden></canvas>
 
-<img id="result">
+
+
+<!-- Hidden Canvas -->
+
+<canvas id="canvas"></canvas>
+
+
+
+<!-- Captured Photo -->
+
+<img id="result" alt="Captured Photo">
+
+
 
 <script src="script.js"></script>
+
 
 </body>
 
