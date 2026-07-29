@@ -1,1 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoStamp Camera</title>
 
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>📷 GeoStamp Camera</h1>
+
+<video id="camera" autoplay playsinline></video>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+<div class="info">
+
+<p id="date">Date : --</p>
+
+<p id="time">Time : --</p>
+
+<p id="location">Location : Loading...</p>
+
+<p id="latlng">Lat : -- | Long : --</p>
+
+</div>
+
+<button id="capture">📸 Capture Photo</button>
+
+<img id="photo" />
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
