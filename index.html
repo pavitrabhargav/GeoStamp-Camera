@@ -9,11 +9,14 @@
 
 <title>GeoStamp Camera</title>
 
+
 <link rel="stylesheet" href="style.css">
+
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
 </head>
 
@@ -33,28 +36,24 @@ playsinline>
 
 
 
-<!-- GPS Information -->
+<!-- Live GPS Overlay -->
 
-<div id="gpsPanel">
+<div id="stampOverlay">
 
 
-<div id="mapBox">
+<div id="mapPreview">
 
-<div id="map">
-
-🗺️ Map Loading...
-
-</div>
+🗺️
 
 </div>
 
 
 
-<div id="details">
+<div id="stampText">
 
 
 <h2 id="placeName">
-Loading...
+Loading Location...
 </h2>
 
 
@@ -69,17 +68,17 @@ Searching Address...
 
 
 <p id="lat">
-Latitude : --
+Lat --
 </p>
 
 
 <p id="lng">
-Longitude : --
+Long --
 </p>
 
 
 <p id="dateTime">
-Loading...
+Loading Time...
 </p>
 
 
@@ -87,6 +86,7 @@ Loading...
 
 
 </div>
+
 
 
 
@@ -95,7 +95,7 @@ Loading...
 
 <button id="captureBtn">
 
-📸 Capture
+📸
 
 </button>
 
@@ -106,15 +106,26 @@ Loading...
 
 
 
+
 <!-- Hidden Canvas -->
 
 <canvas id="canvas"></canvas>
 
 
 
-<!-- Captured Photo -->
+<!-- Final Photo -->
 
-<img id="result" alt="Captured Photo">
+<img id="result">
+
+
+
+
+
+<!-- Map Data -->
+
+<div id="map"></div>
+
+
 
 
 
@@ -122,5 +133,6 @@ Loading...
 
 
 </body>
+
 
 </html>
