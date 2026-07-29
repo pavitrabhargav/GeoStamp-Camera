@@ -13,118 +13,70 @@
 <link rel="stylesheet" href="style.css">
 
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
 </head>
 
 
 <body>
 
 
-<div id="cameraContainer">
+<div class="container">
 
 
-<!-- Camera -->
-
-<video id="camera"
-autoplay
-playsinline>
-</video>
+    <div class="title">
+        📍 GeoStamp Camera
+    </div>
 
 
+    <!-- CAMERA -->
 
-<!-- Live GPS Overlay -->
-
-<div id="stampOverlay">
+    <video id="video" autoplay playsinline></video>
 
 
-<div id="mapPreview">
+    <!-- PHOTO RESULT -->
 
-🗺️
-
-</div>
+    <canvas id="canvas"></canvas>
 
 
 
-<div id="stampText">
+    <!-- LOCATION PREVIEW -->
 
+    <div class="info" id="locationInfo">
 
-<h2 id="placeName">
-Loading Location...
-</h2>
+        Getting Location...
 
-
-<p id="country">
-India 🇮🇳
-</p>
-
-
-<p id="address">
-Searching Address...
-</p>
-
-
-<p id="lat">
-Lat --
-</p>
-
-
-<p id="lng">
-Long --
-</p>
-
-
-<p id="dateTime">
-Loading Time...
-</p>
-
-
-</div>
-
-
-</div>
+    </div>
 
 
 
+    <!-- BUTTONS -->
+
+    <div class="controls">
 
 
-<!-- Capture Button -->
+        <button id="switchBtn">
+            🔄
+        </button>
 
-<button id="captureBtn">
 
-📸
 
-</button>
+        <button id="captureBtn">
+
+        </button>
+
+
+    </div>
+
+
+
+    <button id="downloadBtn">
+
+        Download Photo
+
+    </button>
 
 
 
 </div>
-
-
-
-
-
-<!-- Hidden Canvas -->
-
-<canvas id="canvas"></canvas>
-
-
-
-<!-- Final Photo -->
-
-<img id="result">
-
-
-
-
-
-<!-- Map Data -->
-
-<div id="map"></div>
-
 
 
 
@@ -133,6 +85,5 @@ Loading Time...
 
 
 </body>
-
 
 </html>
