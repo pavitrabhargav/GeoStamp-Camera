@@ -11,19 +11,17 @@ const captureBtn = document.getElementById("captureBtn");
 const result = document.getElementById("result");
 
 
-let latitude = "";
-let longitude = "";
-let place = "";
-let fullAddress = "";
-
 let map;
 let marker;
 
+let latitude = 0;
+let longitude = 0;
+let place = "Loading...";
+let fullAddress = "";
 
 
-// =====================
-// CAMERA START
-// =====================
+
+// ================= CAMERA =================
 
 async function startCamera(){
 
@@ -57,9 +55,7 @@ console.log(error);
 
 
 
-// =====================
-// DATE TIME
-// =====================
+// ================= DATE TIME =================
 
 function updateDateTime(){
 
@@ -80,14 +76,11 @@ updateDateTime();
 
 
 
-// =====================
-// GPS
-// =====================
-
+// ================= GPS =================
 
 navigator.geolocation.getCurrentPosition(
 
-(position)=>{
+function(position){
 
 
 latitude = position.coords.latitude;
@@ -95,8 +88,10 @@ latitude = position.coords.latitude;
 longitude = position.coords.longitude;
 
 
+
 latText.innerHTML =
 "Latitude : "+latitude.toFixed(6);
+
 
 
 lngText.innerHTML =
@@ -114,7 +109,7 @@ getAddress(latitude,longitude);
 },
 
 
-(error)=>{
+function(){
 
 alert("GPS Permission Denied");
 
@@ -125,9 +120,8 @@ alert("GPS Permission Denied");
 
 
 
-// =====================
-// MAP
-// =====================
+
+// ================= MAP =================
 
 function loadMap(lat,lng){
 
@@ -141,27 +135,23 @@ L.tileLayer(
 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 
 {
-
 maxZoom:19
-
 }
 
 ).addTo(map);
 
 
 
-marker = L.marker([lat,lng]).addTo(map);
-
+marker =
+L.marker([lat,lng]).addTo(map);
 
 
 }
 
 
 
-// =====================
-// ADDRESS
-// =====================
 
+// ================= ADDRESS =================
 
 async function getAddress(lat,lng){
 
@@ -170,15 +160,14 @@ try{
 
 
 const url =
-
 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
 
 
 
-const response = await fetch(url);
+const res = await fetch(url);
 
 
-const data = await response.json();
+const data = await res.json();
 
 
 
@@ -218,15 +207,15 @@ console.log(e);
 
 
 
-// =====================
-// CAPTURE PHOTO
-// =====================
+
+
+// ================= CAPTURE PHOTO =================
 
 
 captureBtn.onclick = function(){
 
 
-if(video.readyState < 2){
+if(video.videoWidth === 0){
 
 alert("Camera Loading...");
 
@@ -246,7 +235,7 @@ const ctx = canvas.getContext("2d");
 
 
 
-// Camera Image
+// Camera Photo
 
 ctx.drawImage(
 
@@ -264,20 +253,22 @@ canvas.height
 
 
 
-// GPS STAMP BOX
+
+// ===== STAMP ON PHOTO =====
 
 
-ctx.fillStyle="rgba(0,0,0,0.6)";
+ctx.fillStyle="rgba(0,0,0,0.55)";
+
 
 ctx.fillRect(
 
 20,
 
-canvas.height-170,
+canvas.height-190,
 
 canvas.width-40,
 
-140
+160
 
 );
 
@@ -285,8 +276,8 @@ canvas.width-40,
 
 ctx.fillStyle="white";
 
-ctx.font="22px Arial";
 
+ctx.font="bold 26px Arial";
 
 
 ctx.fillText(
@@ -295,34 +286,22 @@ ctx.fillText(
 
 40,
 
-canvas.height-130
+canvas.height-145
 
 );
 
 
 
-ctx.font="16px Arial";
+ctx.font="20px Arial";
 
 
 ctx.fillText(
 
-"Lat: "+latitude.toFixed(6),
+"🌐 "+latitude.toFixed(6)+", "+longitude.toFixed(6),
 
 40,
 
-canvas.height-95
-
-);
-
-
-
-ctx.fillText(
-
-"Lng: "+longitude.toFixed(6),
-
-40,
-
-canvas.height-70
+canvas.height-110
 
 );
 
@@ -330,41 +309,62 @@ canvas.height-70
 
 ctx.fillText(
 
-new Date().toLocaleString(),
+"🏠 "+fullAddress.substring(0,45),
 
 40,
 
-canvas.height-45
+canvas.height-75
 
 );
 
 
 
-// SHOW IMAGE
+ctx.fillText(
+
+"🕒 "+new Date().toLocaleString(),
+
+40,
+
+canvas.height-40
+
+);
 
 
-const image = canvas.toDataURL("image/png");
 
 
-result.src=image;
+// FINAL IMAGE
+
+
+let finalPhoto = canvas.toDataURL("image/png");
+
+
+
+result.src = finalPhoto;
+
 
 result.style.display="block";
+
 
 
 
 // DOWNLOAD
 
 
-const link=document.createElement("a");
+let a = document.createElement("a");
 
-link.download="GeoStamp_Photo.png";
 
-link.href=image;
+a.href = finalPhoto;
 
-link.click();
+
+a.download = "GeoStamp_Photo.png";
+
+
+a.click();
 
 
 };
+
+
 
 
 
