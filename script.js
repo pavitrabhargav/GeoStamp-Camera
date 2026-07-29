@@ -1,52 +1,57 @@
-body{
-    margin:0;
-    padding:20px;
-    background:#111;
-    color:white;
-    font-family:Arial,sans-serif;
-    text-align:center;
+const video = document.getElementById("camera");
+const dateText = document.getElementById("date");
+const timeText = document.getElementById("time");
+const locationText = document.getElementById("location");
+const latlngText = document.getElementById("latlng");
+
+// Camera Start
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false
+    });
+
+    video.srcObject = stream;
+  } catch (e) {
+    alert("Camera Permission Required");
+  }
 }
 
-.container{
-    max-width:500px;
-    margin:auto;
+// GPS Start
+function getLocation() {
+  if (!navigator.geolocation) {
+    locationText.innerText = "GPS Not Supported";
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lon = pos.coords.longitude.toFixed(6);
+
+      latlngText.innerText =
+        "Lat : " + lat + " | Long : " + lon;
+
+      locationText.innerText = "GPS Connected";
+    },
+    () => {
+      locationText.innerText = "Location Permission Denied";
+    }
+  );
 }
 
-h1{
-    color:#00ff88;
+// Date Time
+function updateTime() {
+  const now = new Date();
+
+  dateText.innerText = "Date : " + now.toLocaleDateString();
+
+  timeText.innerText = "Time : " + now.toLocaleTimeString();
 }
 
-video{
-    width:100%;
-    border-radius:12px;
-    border:2px solid #00ff88;
-}
+startCamera();
+getLocation();
+updateTime();
 
-.info{
-    margin-top:15px;
-    background:#222;
-    padding:10px;
-    border-radius:10px;
-    text-align:left;
-}
-
-button{
-    margin-top:15px;
-    width:100%;
-    padding:15px;
-    font-size:18px;
-    background:#00c853;
-    color:white;
-    border:none;
-    border-radius:10px;
-}
-
-button:hover{
-    background:#00a844;
-}
-
-#photo{
-    margin-top:20px;
-    width:100%;
-    border-radius:10px;
-}
+setInterval(updateTime,1000);
