@@ -2,134 +2,128 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial,Helvetica,sans-serif;
+    font-family:Arial, sans-serif;
 }
 
-html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
+
+body{
+
     background:#000;
-}
 
-#cameraContainer{
-    position:relative;
-    width:100vw;
+    width:100%;
     height:100vh;
-    overflow:hidden;
-}
-
-#camera{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    background:#000;
-}
-
-/* Bottom GPS Panel */
-
-#gpsPanel{
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    min-height:180px;
-
-    background:rgba(0,0,0,.75);
-    color:#fff;
 
     display:flex;
-    align-items:flex-start;
-
-    padding:15px;
-}
-
-#mapBox{
-
-    width:130px;
-    height:130px;
-
-    border-radius:12px;
+    justify-content:center;
+    align-items:center;
 
     overflow:hidden;
 
-    background:#333;
-
-    margin-right:15px;
-
-    flex-shrink:0;
-
 }
 
-#map{
+
+
+/* MAIN CAMERA BOX */
+
+.container{
 
     width:100%;
+    max-width:450px;
+
+    height:100vh;
+
+    background:#000;
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+
+
+/* VIDEO */
+
+video{
+
+    width:100%;
+
     height:100%;
 
-}
+    object-fit:cover;
 
-/* Details */
+    position:absolute;
 
-#details{
-
-    flex:1;
-
-}
-
-#placeName{
-
-    font-size:30px;
-
-    font-weight:bold;
-
-    margin-bottom:5px;
+    top:0;
+    left:0;
 
 }
 
-#country{
 
-    color:#00ff66;
+
+/* CANVAS */
+
+canvas{
+
+    display:none;
+
+    width:100%;
+
+}
+
+
+
+/* BUTTON AREA */
+
+.controls{
+
+    position:absolute;
+
+    bottom:30px;
+
+    width:100%;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:20px;
+
+    z-index:5;
+
+}
+
+
+
+/* ALL BUTTON */
+
+button{
+
+    border:none;
+
+    outline:none;
+
+    cursor:pointer;
+
+    color:white;
 
     font-size:18px;
 
-    margin-bottom:8px;
+    font-weight:bold;
 
 }
 
-#address{
 
-    font-size:16px;
 
-    line-height:24px;
-
-    margin-bottom:8px;
-
-}
-
-#lat,
-#lng,
-#dateTime{
-
-    font-size:15px;
-
-    margin-top:5px;
-
-}
-
-/* Capture Button */
+/* CAPTURE BUTTON */
 
 #captureBtn{
-
-    position:absolute;
-
-    bottom:205px;
-
-    left:50%;
-
-    transform:translateX(-50%);
 
     width:75px;
 
@@ -137,86 +131,138 @@ html,body{
 
     border-radius:50%;
 
-    border:none;
+    background:white;
 
-    background:#fff;
+    border:8px solid #ddd;
 
-    font-size:30px;
-
-    cursor:pointer;
-
-    box-shadow:0 0 15px rgba(0,0,0,.5);
+    
 
 }
 
-/* Captured Image */
 
-#result{
+
+/* CLICK EFFECT */
+
+#captureBtn:active{
+
+    transform:scale(0.9);
+
+}
+
+
+
+/* SWITCH BUTTON */
+
+#switchBtn{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.3);
+
+    backdrop-filter:blur(5px);
+
+}
+
+
+
+/* DOWNLOAD BUTTON */
+
+#downloadBtn{
+
+    position:absolute;
+
+    bottom:120px;
+
+    background:#00c853;
+
+    padding:15px 25px;
+
+    border-radius:30px;
 
     display:none;
 
-    width:100%;
+}
 
-    height:auto;
+
+
+/* CAMERA TITLE */
+
+.title{
+
+    position:absolute;
+
+    top:25px;
+
+    color:white;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    z-index:5;
+
+    text-shadow:0 0 10px black;
 
 }
 
-/* Mobile */
 
-@media(max-width:700px){
 
-#gpsPanel{
+/* LOCATION INFO */
 
-padding:12px;
+.info{
 
-}
+    position:absolute;
 
-#mapBox{
+    bottom:120px;
 
-width:105px;
+    color:white;
 
-height:105px;
+    background:rgba(0,0,0,0.5);
 
-}
+    padding:10px 15px;
 
-#placeName{
+    border-radius:10px;
 
-font-size:22px;
+    max-width:90%;
 
-}
+    text-align:center;
 
-#country{
+    font-size:14px;
 
-font-size:15px;
+    z-index:5;
 
 }
 
-#address{
 
-font-size:13px;
 
-line-height:18px;
+/* MOBILE RESPONSIVE */
 
-}
+@media(max-width:600px){
 
-#lat,
-#lng,
-#dateTime{
+    .container{
 
-font-size:12px;
+        max-width:100%;
 
-}
+    }
 
-#captureBtn{
 
-bottom:180px;
+    #captureBtn{
 
-width:65px;
+        width:70px;
 
-height:65px;
+        height:70px;
 
-font-size:25px;
+    }
 
-}
+
+    button{
+
+        font-size:16px;
+
+    }
 
 }
