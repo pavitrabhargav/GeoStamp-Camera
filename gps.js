@@ -29,9 +29,10 @@ setInterval(updateDateTime,1000);
 
 updateDateTime();
 
-/* ==========================================
+/* 30/7/26===="_:rb jhh r.h ii css
+ji======================================
    GPS Start
-========================================== */
+=============time_/_22:00:56========.       hy hy to the time of reading zone===================== */
 
 function startGPS(){
 
