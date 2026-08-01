@@ -250,33 +250,24 @@ function retakePhoto() {
    Button Events
 ========================================== */
 
-document
-.getElementById("captureBtn")
-.addEventListener(
-"click",
-capturePhoto
-);
+window.addEventListener("DOMContentLoaded", () => {
 
-document
-.getElementById("downloadBtn")
-.addEventListener(
-"click",
-savePhoto
-);
+    document.getElementById("captureBtn")
+        .addEventListener("click", capturePhoto);
 
-document
-.getElementById("retakeBtn")
-.addEventListener(
-"click",
-retakePhoto
-);
+    document.getElementById("downloadBtn")
+        .addEventListener("click", savePhoto);
 
-document
-.getElementById("switchBtn")
-.addEventListener(
-"click",
-switchCamera
-);
+    document.getElementById("retakeBtn")
+        .addEventListener("click", retakePhoto);
+
+    document.getElementById("switchBtn")
+        .addEventListener("click", switchCamera);
+
+    document.getElementById("flashBtn")
+        .addEventListener("click", toggleFlash);
+
+});
 /* ==========================================
    Draw Overlay on Photo
 ========================================== */
