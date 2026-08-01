@@ -1,36 +1,35 @@
 /* ==========================================
-   GeoStamp Camera
-   camera.js
+   GeoStamp Camera Pro
+   camera.js - Part 1
 ========================================== */
-
-let cameraStream = null;
-let currentFacingMode = "environment";
 
 const video = document.getElementById("camera");
 const canvas = document.getElementById("photoCanvas");
+const ctx = canvas.getContext("2d", {
+    willReadFrequently: true
+});
 
-const captureButton = document.getElementById("captureButton");
-const switchButton = document.getElementById("switchCamera");
+let currentStream = null;
+let facingMode = "environment";
+let flashEnabled = false;
 
-const captureIcon = document.getElementById("captureIcon");
+/* ==========================================
+   Start Camera
+========================================== */
 
 async function startCamera() {
 
     try {
 
-        if (cameraStream) {
+        stopCamera();
 
-            stopCamera();
+        updateStatus("Opening Camera...");
 
-        }
-
-        const constraints = {
-
-            audio: false,
+        currentStream = await navigator.mediaDevices.getUserMedia({
 
             video: {
 
-                facingMode: currentFacingMode,
+                facingMode: facingMode,
 
                 width: {
                     ideal: 1920
@@ -40,56 +39,65 @@ async function startCamera() {
                     ideal: 1080
                 }
 
-            }
+            },
 
-        };
+            audio: false
 
-        cameraStream =
-            await navigator.mediaDevices.getUserMedia(
-                constraints
-            );
+        });
 
-        video.srcObject = cameraStream;
+        video.srcObject = currentStream;
 
         await video.play();
 
-        console.log("Camera Started");
+        hideLoading();
 
-    } catch (error) {
+        showApp();
+
+        updateStatus("Camera Ready");
+
+    }
+
+    catch (error) {
 
         console.error(error);
 
-        alert("Camera Permission Required");
+        updateStatus("Camera Permission Denied");
+
+        alert("Camera permission is required.");
 
     }
 
 }
 
+/* ==========================================
+   Stop Camera
+========================================== */
+
 function stopCamera() {
 
-    if (!cameraStream) return;
+    if (!currentStream) return;
 
-    cameraStream
-        .getTracks()
-        .forEach(track => {
+    currentStream.getTracks().forEach(track => {
 
-            track.stop();
+        track.stop();
 
-        });
-
-    cameraStream = null;
+    });
 
 }
 
+/* ==========================================
+   Switch Camera
+========================================== */
+
 async function switchCamera() {
 
-    if (currentFacingMode === "environment") {
+    if (facingMode === "environment") {
 
-        currentFacingMode = "user";
+        facingMode = "user";
 
     } else {
 
-        currentFacingMode = "environment";
+        facingMode = "environment";
 
     }
 
@@ -97,184 +105,286 @@ async function switchCamera() {
 
 }
 
-switchButton.addEventListener(
+/* ==========================================
+   Helpers
+========================================== */
 
-    "click",
+function showApp() {
 
-    switchCamera
+    document
+        .getElementById("app")
+        .classList
+        .remove("hidden");
 
-);
+}
+
+function hideLoading() {
+
+    document
+        .getElementById("loadingScreen")
+        .classList
+        .add("hidden");
+
+}
+
+function updateStatus(text) {
+
+    document
+        .getElementById("statusMessage")
+        .textContent = text;
+
+}
 /* ==========================================
    Photo Capture
 ========================================== */
 
 async function capturePhoto() {
 
-    if (!cameraStream) {
-        alert("Camera not started");
-        return;
+    try {
+
+        updateStatus("Capturing...");
+
+        if (video.videoWidth === 0) {
+            alert("Camera is not ready.");
+            return;
+        }
+
+        /* Canvas Size */
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        /* Draw Camera Frame */
+
+        ctx.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        /* Draw Overlay */
+
+        drawOverlay();
+
+        /* Shutter Sound */
+
+        const shutter = document.getElementById("shutterSound");
+
+        if (shutter) {
+
+            shutter.currentTime = 0;
+
+            shutter.play().catch(() => {});
+
+        }
+
+        /* Preview */
+
+        const image = canvas.toDataURL(
+            "image/jpeg",
+            1.0
+        );
+
+        document.getElementById(
+            "capturedImage"
+        ).src = image;
+
+        document.getElementById(
+            "photoPreview"
+        ).classList.remove("hidden");
+
+        updateStatus("Photo Captured");
+
     }
 
-    if (video.readyState !== 4) {
-        alert("Camera is still loading...");
-        return;
+    catch (err) {
+
+        console.error(err);
+
+        updateStatus("Capture Failed");
+
     }
-
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-
-    canvas.width = width;
-    canvas.height = height;
-
-    const ctx = canvas.getContext("2d");
-
-    // Draw camera frame
-    ctx.drawImage(video, 0, 0, width, height);
-
-    // Flash Animation
-    flashScreen();
-
-    // Prepare GPS Data
-    const gpsData = {
-        city: document.getElementById("city").textContent,
-        address: document.getElementById("address").textContent,
-        latitude: document.getElementById("latitude").textContent,
-        longitude: document.getElementById("longitude").textContent,
-        date: document.getElementById("currentDate").textContent,
-        time: document.getElementById("currentTime").textContent,
-        altitude: document.getElementById("altitude").textContent,
-        speed: document.getElementById("speed").textContent,
-        direction: document.getElementById("direction").textContent,
-        accuracy: document.getElementById("accuracy").textContent
-    };
-
-    // Draw Overlay
-    await drawOverlay(canvas, canvas, gpsData);
-
-    savePhoto();
 
 }
 
 /* ==========================================
-   Save Image
+   Save Photo
 ========================================== */
 
 function savePhoto() {
 
-    canvas.toBlob(function(blob){
+    const link = document.createElement("a");
 
-        const link = document.createElement("a");
+    link.download =
+        "GeoStamp_" +
+        Date.now() +
+        ".jpg";
 
-        const fileName =
-            "GeoStamp_" +
-            Date.now() +
-            ".jpg";
+    link.href = canvas.toDataURL(
+        "image/jpeg",
+        1.0
+    );
 
-        link.href = URL.createObjectURL(blob);
-
-        link.download = fileName;
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-
-        URL.revokeObjectURL(link.href);
-
-    }, "image/jpeg", 0.98);
+    link.click();
 
 }
 
 /* ==========================================
-   Flash Effect
+   Retake Photo
 ========================================== */
 
-function flashScreen(){
+function retakePhoto() {
 
-    const flash = document.createElement("div");
+    document
+        .getElementById("photoPreview")
+        .classList
+        .add("hidden");
 
-    flash.style.position="fixed";
-    flash.style.left="0";
-    flash.style.top="0";
-    flash.style.width="100%";
-    flash.style.height="100%";
-    flash.style.background="#ffffff";
-    flash.style.opacity="
-/* ==========================================
-   Camera Zoom & Torch
-========================================== */
-
-let currentZoom = 1;
-let torchEnabled = false;
-
-async function getVideoTrack() {
-
-    if (!cameraStream) return null;
-
-    const tracks = cameraStream.getVideoTracks();
-
-    if (!tracks.length) return null;
-
-    return tracks[0];
+    updateStatus("Camera Ready");
 
 }
 
 /* ==========================================
-   Zoom
+   Button Events
 ========================================== */
 
-async function setZoom(value) {
+document
+.getElementById("captureBtn")
+.addEventListener(
+"click",
+capturePhoto
+);
 
-    const track = await getVideoTrack();
+document
+.getElementById("downloadBtn")
+.addEventListener(
+"click",
+savePhoto
+);
 
-    if (!track) return;
+document
+.getElementById("retakeBtn")
+.addEventListener(
+"click",
+retakePhoto
+);
 
-    const capabilities = track.getCapabilities();
+document
+.getElementById("switchBtn")
+.addEventListener(
+"click",
+switchCamera
+);
+/* ==========================================
+   Draw Overlay on Photo
+========================================== */
 
-    if (!capabilities.zoom) {
+function drawOverlay() {
 
-        console.log("Zoom not supported");
+    const padding = 30;
+    const boxHeight = 260;
 
-        return;
+    /* Background */
 
-    }
+    ctx.fillStyle = "rgba(0,0,0,0.60)";
+    roundRect(
+        ctx,
+        20,
+        canvas.height - boxHeight - 20,
+        canvas.width - 40,
+        boxHeight,
+        20
+    );
 
-    currentZoom = value;
+    /* Text */
 
-    try {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 34px Arial";
 
-        await track.applyConstraints({
+    let x = padding + 20;
+    let y = canvas.height - boxHeight + 35;
 
-            advanced: [
+    ctx.fillText("GeoStamp Camera", x, y);
 
-                {
+    ctx.font = "26px Arial";
 
-                    zoom: value
+    y += 45;
+    ctx.fillText(
+        "Address : " +
+        document.getElementById("address").textContent,
+        x,
+        y
+    );
 
-                }
+    y += 40;
+    ctx.fillText(
+        "Latitude : " +
+        document.getElementById("latitude").textContent,
+        x,
+        y
+    );
 
-            ]
+    y += 40;
+    ctx.fillText(
+        "Longitude : " +
+        document.getElementById("longitude").textContent,
+        x,
+        y
+    );
 
-        });
+    y += 40;
+    ctx.fillText(
+        "Date : " +
+        document.getElementById("currentDate").textContent,
+        x,
+        y
+    );
 
-    }
-
-    catch (e) {
-
-        console.log(e);
-
-    }
+    y += 40;
+    ctx.fillText(
+        "Time : " +
+        document.getElementById("currentTime").textContent,
+        x,
+        y
+    );
 
 }
 
 /* ==========================================
-   Torch
+   Rounded Rectangle
 ========================================== */
 
-async function toggleTorch() {
+function roundRect(ctx, x, y, width, height, radius) {
 
-    const track = await getVideoTrack();
+    ctx.beginPath();
+
+    ctx.moveTo(x + radius, y);
+
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+
+    ctx.arcTo(x, y + height, x, y, radius);
+
+    ctx.arcTo(x, y, x + width, y, radius);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+}
+
+/* ==========================================
+   Flash (Browser Support)
+========================================== */
+
+async function toggleFlash() {
+
+    if (!currentStream) return;
+
+    const track = currentStream.getVideoTracks()[0];
 
     if (!track) return;
 
@@ -282,316 +392,45 @@ async function toggleTorch() {
 
     if (!capabilities.torch) {
 
-        alert("Torch Not Supported");
+        alert("Flash/Torch is not supported on this device.");
 
         return;
 
     }
 
-    torchEnabled = !torchEnabled;
+    flashEnabled = !flashEnabled;
 
-    try {
+    await track.applyConstraints({
 
-        await track.applyConstraints({
+        advanced: [
 
-            advanced: [
+            {
+                torch: flashEnabled
+            }
 
-                {
+        ]
 
-                    torch: torchEnabled
-
-                }
-
-            ]
-
-        });
-
-    }
-
-    catch (error) {
-
-        console.log(error);
-
-    }
+    });
 
 }
 
 /* ==========================================
-   Camera Restart
+   Flash Button
 ========================================== */
 
-async function restartCamera() {
-
-    stopCamera();
-
-    await startCamera();
-
-}
-
-/* ==========================================
-   Error Recovery
-========================================== */
-
-video.addEventListener(
-
-    "error",
-
-    async () => {
-
-        console.log("Restarting Camera...");
-
-        await restartCamera();
-
-    }
-
+document
+.getElementById("flashBtn")
+.addEventListener(
+"click",
+toggleFlash
 );
 
 /* ==========================================
-   Visibility
+   Auto Start
 ========================================== */
 
-document.addEventListener(
+window.addEventListener("load", () => {
 
-    "visibilitychange",
+    startCamera();
 
-    async () => {
-
-        if (document.hidden) {
-
-            stopCamera();
-
-        }
-
-        else {
-
-            await startCamera();
-
-        }
-
-    }
-
-);
-
-/* ==========================================
-   Window Focus
-========================================== */
-
-window.addEventListener(
-
-    "focus",
-
-    async () => {
-
-        if (!cameraStream) {
-
-            await startCamera();
-
-        }
-
-    }
-
-);
-
-/* ==========================================
-   Camera Ready
-========================================== */
-
-video.addEventListener(
-
-    "loadedmetadata",
-
-    () => {
-
-        console.log(
-
-            "Resolution :",
-
-            video.videoWidth,
-
-            "x",
-
-            video.videoHeight
-
-        );
-
-    }
-
-);
-/* ==========================================
-   GeoStamp Camera
-   camera.js Part 4
-========================================== */
-
-/* ---------- Camera Permission ---------- */
-
-async function checkCameraPermission() {
-
-    try {
-
-        const permission = await navigator.permissions.query({
-            name: "camera"
-        });
-
-        console.log("Camera Permission :", permission.state);
-
-    } catch (e) {
-
-        console.log("Permission API Not Supported");
-
-    }
-
-}
-
-/* ---------- Auto Focus ---------- */
-
-async function enableAutoFocus() {
-
-    const track = await getVideoTrack();
-
-    if (!track) return;
-
-    const capabilities = track.getCapabilities();
-
-    if (!capabilities.focusMode) {
-
-        console.log("Auto Focus Not Supported");
-
-        return;
-
-    }
-
-    try {
-
-        await track.applyConstraints({
-
-            advanced: [
-
-                {
-
-                    focusMode: "continuous"
-
-                }
-
-            ]
-
-        });
-
-    } catch (err) {
-
-        console.log(err);
-
-    }
-
-}
-
-/* ---------- GPS Lock ---------- */
-
-function canCapturePhoto() {
-
-    const gps = document.getElementById("gpsText");
-
-    if (!gps) return false;
-
-    if (gps.innerText.toLowerCase().includes("waiting")) {
-
-        alert("Waiting for Accurate GPS...");
-
-        return false;
-
-    }
-
-    return true;
-
-}
-
-/* ---------- Capture Button ---------- */
-
-captureButton.addEventListener(
-
-    "click",
-
-    async () => {
-
-        if (!canCapturePhoto()) return;
-
-        captureButton.disabled = true;
-
-        captureButton.style.opacity = ".6";
-
-        try {
-
-            await capturePhoto();
-
-        }
-
-        finally {
-
-            captureButton.disabled = false;
-
-            captureButton.style.opacity = "1";
-
-        }
-
-    }
-
-);
-
-/* ---------- Cleanup ---------- */
-
-window.addEventListener(
-
-    "beforeunload",
-
-    () => {
-
-        stopCamera();
-
-    }
-
-);
-
-/* ---------- Initialization ---------- */
-
-async function initializeCamera() {
-
-    await checkCameraPermission();
-
-    await startCamera();
-
-    await enableAutoFocus();
-
-    console.log("GeoStamp Camera Ready");
-
-}
-
-window.addEventListener(
-
-    "load",
-
-    initializeCamera
-
-);
-
-/* ---------- Export ---------- */
-
-window.GeoStampCamera = {
-
-    startCamera,
-
-    stopCamera,
-
-    switchCamera,
-
-    capturePhoto,
-
-    restartCamera,
-
-    toggleTorch,
-
-    setZoom
-
-};
-
-console.log("camera.js Loaded Successfully");
-
-
+});
