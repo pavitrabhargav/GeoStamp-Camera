@@ -11,320 +11,267 @@ initial-scale=1.0,
 maximum-scale=1.0,
 user-scalable=no">
 
-<meta
-name="theme-color"
-content="#000000">
+<meta name="theme-color" content="#000000">
 
-<meta
-name="apple-mobile-web-app-capable"
-content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
-<meta
-name="apple-mobile-web-app-status-bar-style"
-content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 
-<meta
-name="mobile-web-app-capable"
-content="yes">
+<title>GeoStamp Camera Pro</title>
 
-<title>GeoStamp Camera</title>
+<link rel="manifest" href="manifest.json">
 
-<link rel="manifest"
-href="manifest.json">
-
-<link
-rel="icon"
-href="assets/icon-192.png">
-
-<link
-rel="apple-touch-icon"
-href="assets/icon-192.png">
-
-<link
-rel="stylesheet"
-href="style.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
+<!-- ========================= -->
+<!-- Loading Screen -->
+<!-- ========================= -->
+
 <div id="loadingScreen">
 
 <div class="loader"></div>
 
-<h2>GeoStamp Camera</h2>
+<p>Loading Camera...</p>
+
+</div>
+
+<!-- ========================= -->
+<!-- Permission Screen -->
+<!-- ========================= -->
+
+<div id="permissionScreen" class="hidden">
+
+<div class="permissionBox">
+
+<h2>Camera Permission</h2>
 
 <p>
 
-Loading Camera...
+Please allow Camera and Location
+permission to continue.
 
 </p>
 
+<button id="grantPermission">
+
+Grant Permission
+
+</button>
+
 </div>
 
-<div id="app">
+</div>
+
+<!-- ========================= -->
+<!-- Main App -->
+<!-- ========================= -->
+
+<div id="app" class="hidden">
+
+<!-- Camera Preview -->
 
 <video
-
 id="camera"
-
 autoplay
-
 playsinline
+muted>
+</video>
 
-muted
+<!-- Hidden Canvas -->
 
-></video>
+<canvas id="photoCanvas"></canvas>
 
-<canvas
+<!-- Overlay -->
 
-id="photoCanvas"
+<div id="overlay">
 
-style="display:none">
+<div class="topOverlay">
 
-</canvas>
-
-<div id="cameraOverlay">
-
-<div id="topBar">
-
-<div class="gpsStatus">
-
-<span
-id="gpsDot">
-
-</span>
-
-<span
-id="gpsText">
-
-Waiting GPS...
-
-</span>
-
-</div>
-
-<div
-id="accuracyBox">
-
-Accuracy :
-
-<span
-id="accuracy">
-
---
-
-</span>
-
-m
-
-</div>
-
-</div>
-
-<div id="bottomOverlay">
-
-<div id="overlayLeft">
+<div class="logoBox">
 
 <img
+src="assets/logo.png"
+id="logo">
 
-src="assets/map.jpg"
+<span>
 
-id="mapImage"
-
-alt="Map">
-
-</div>
-
-<div id="overlayRight">
-
-<div class="locationTitle">
-
-<span id="city">
-
-Loading...
+GeoStamp Camera
 
 </span>
 
 </div>
 
-<div class="addressText">
+<div class="batteryClock">
 
+<div id="liveTime">
+
+00:00:00
+
+</div>
+
+</div>
+
+</div>
+<!-- ========================= -->
+<!-- Live Information Overlay -->
+<!-- ========================= -->
+
+<div class="bottomOverlay">
+
+<div class="infoCard">
+
+<div class="infoRow">
+<span class="label">📍 Address</span>
 <span id="address">
-
-Searching Address...
-
+Fetching location...
 </span>
-
 </div>
 
 <div class="infoRow">
-
-<div>
-
-Latitude
-
-</div>
-
-<div id="latitude">
-
---
-
-</div>
-
+<span class="label">🌍 Latitude</span>
+<span id="latitude">0.000000</span>
 </div>
 
 <div class="infoRow">
-
-<div>
-
-Longitude
-
+<span class="label">🌎 Longitude</span>
+<span id="longitude">0.000000</span>
 </div>
 
-<div id="longitude">
-
---
-
-</div>
-
-</div>
 <div class="infoRow">
-                        <div>Date</div>
-                        <div id="currentDate">--/--/----</div>
-                    </div>
+<span class="label">📡 Accuracy</span>
+<span id="accuracy">0 m</span>
+</div>
 
-                    <div class="infoRow">
-                        <div>Time</div>
-                        <div id="currentTime">--:--:--</div>
-                    </div>
+<div class="infoRow">
+<span class="label">📅 Date</span>
+<span id="currentDate">
+00/00/0000
+</span>
+</div>
 
-                    <div class="infoRow">
-                        <div>Altitude</div>
-                        <div id="altitude">-- m</div>
-                    </div>
+<div class="infoRow">
+<span class="label">🕒 Time</span>
+<span id="currentTime">
+00:00:00
+</span>
+</div>
 
-                    <div class="infoRow">
-                        <div>Speed</div>
-                        <div id="speed">0 km/h</div>
-                    </div>
+</div>
 
-                    <div class="infoRow">
-                        <div>Direction</div>
-                        <div id="direction">N</div>
-                    </div>
+</div>
 
-                </div>
+<!-- ========================= -->
+<!-- Camera Controls -->
+<!-- ========================= -->
 
-            </div>
+<div class="controls">
 
-        </div>
+<button
+id="flashBtn"
+class="controlBtn"
+title="Flash">
 
-        <div id="controls">
+⚡
 
-            <button
-                id="switchCamera"
-                class="controlBtn"
-                aria-label="Switch Camera">
+</button>
 
-                <span>🔄</span>
+<button
+id="captureBtn"
+class="captureBtn">
 
-            </button>
+<div class="captureInner"></div>
 
-            <button
-                id="captureButton"
-                aria-label="Capture Photo">
+</button>
 
-                <img
-                    src="assets/camera.png"
-                    id="captureIcon"
-                    alt="Capture">
+<button
+id="switchBtn"
+class="controlBtn"
+title="Switch Camera">
 
-            </button>
+🔄
 
-            <button
-                id="galleryButton"
-                class="controlBtn"
-                aria-label="Gallery">
+</button>
 
-                <span>🖼️</span>
+</div>
 
-            </button>
+<!-- ========================= -->
+<!-- Status Message -->
+<!-- ========================= -->
 
-        </div>
+<div id="statusMessage">
 
-    </div>
+Initializing...
 
-    <div id="permissionDialog"
-         class="hidden">
+</div>
+<!-- ========================= -->
+<!-- Photo Preview -->
+<!-- ========================= -->
 
-        <div class="permissionCard">
+<div id="photoPreview" class="hidden">
 
-            <h2>
+    <img id="capturedImage" alt="Captured Photo">
 
-                Camera Permission
+    <div class="previewButtons">
 
-            </h2>
+        <button id="downloadBtn">
+            💾 Save
+        </button>
 
-            <p>
-
-                Camera, GPS and Storage permission
-                is required to use GeoStamp Camera.
-
-            </p>
-
-            <button
-                id="grantPermission">
-
-                Allow Permission
-
-            </button>
-
-        </div>
-
-    </div>
-<div id="toast" class="hidden">
-
-        <span id="toastMessage">
-
-            Ready
-
-        </span>
+        <button id="retakeBtn">
+            📷 Retake
+        </button>
 
     </div>
 
-    <script src="gps.js"></script>
+</div>
 
-    <script src="camera.js"></script>
+</div>
+<!-- End App -->
 
-    <script src="overlay.js"></script>
+<!-- ========================= -->
+<!-- Hidden Audio -->
+<!-- ========================= -->
 
-    <script src="app.js"></script>
+<audio id="shutterSound" preload="auto">
+    <source src="assets/shutter.mp3" type="audio/mpeg">
+</audio>
 
-    <script>
+<!-- ========================= -->
+<!-- Scripts -->
+<!-- ========================= -->
 
-        if ("serviceWorker" in navigator) {
+<script src="gps.js"></script>
+<script src="camera.js"></script>
+<script src="overlay.js"></script>
+<script src="app.js"></script>
 
-            window.addEventListener("load", () => {
+<script>
 
-                navigator.serviceWorker
-                    .register("sw.js")
-                    .then(() => {
+if ("serviceWorker" in navigator) {
 
-                        console.log("Service Worker Registered");
+window.addEventListener("load", () => {
 
-                    })
-                    .catch(err => {
+navigator.serviceWorker.register("service-worker.js")
+.then(() => {
 
-                        console.error(err);
+console.log("Service Worker Registered");
 
-                    });
+})
+.catch(err => {
 
-            });
+console.log(err);
 
-        }
+});
 
-    </script>
+});
+
+}
+
+</script>
 
 </body>
 
